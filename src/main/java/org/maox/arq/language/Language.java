@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.maox.arq.error.AppException;
-import org.maox.arq.error.Log;
+import org.slf4j.LoggerFactory;
 
 /**
  * Obtención de textos según la configuración local de idioma
@@ -19,18 +19,9 @@ import org.maox.arq.error.Log;
 public class Language {
 
 	/* Patrón singletón */
-	private static Language	_language	= null;
+	private static Language _language = null;
 	/* Lista de posibles recursos de etiquetas */
-	private Vector<String>	vLabels		= null;
-
-	/**
-	 * Constructor Patrón singletón
-	 */
-	private Language() {
-		vLabels = new Vector<String>();
-		// "org.maox.arq.language.GUI"
-		// "org.maox.crumena.language.AppLang"
-	}
+	private Vector<String> vLabels = null;
 
 	/**
 	 * Instanciador (Patrón singleton)
@@ -38,8 +29,9 @@ public class Language {
 	 * @return Instancia del servidor de Lenguaje
 	 */
 	public static Language getInstance() {
-		if (_language == null)
+		if (_language == null) {
 			_language = new Language();
+		}
 
 		return _language;
 	}
@@ -58,13 +50,13 @@ public class Language {
 		while (iResLabels.hasNext() && strLang == null) {
 			try {
 				strLang = ResourceBundle.getBundle(iResLabels.next()).getString(strText);
-			}
-			catch (MissingResourceException eMiss) {
+			} catch (MissingResourceException eMiss) {
 			}
 		}
 
 		if (strLang == null) {
-			Log.error(new AppException(EX_LABEL_NO_TRANSLATE, strText));
+			LoggerFactory.getLogger(Language.class)
+					.error((new AppException(EX_LABEL_NO_TRANSLATE, strText)).toString());
 			strLang = strText;
 		}
 
@@ -72,12 +64,12 @@ public class Language {
 	}
 
 	/**
-	 * Devuelve la lista de recursos de etiquetas disponibles
-	 * 
-	 * @return
+	 * Constructor Patrón singletón
 	 */
-	public Iterator<String> getResourceLabels() {
-		return vLabels.iterator();
+	private Language() {
+		vLabels = new Vector<String>();
+		// "org.maox.arq.language.GUI"
+		// "org.maox.crumena.language.AppLang"
 	}
 
 	/**
@@ -87,5 +79,14 @@ public class Language {
 	 */
 	public void addLangResource(String strLang) {
 		vLabels.add(strLang);
+	}
+
+	/**
+	 * Devuelve la lista de recursos de etiquetas disponibles
+	 * 
+	 * @return
+	 */
+	public Iterator<String> getResourceLabels() {
+		return vLabels.iterator();
 	}
 }

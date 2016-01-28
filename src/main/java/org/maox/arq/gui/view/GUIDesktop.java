@@ -9,7 +9,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Enumeration;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -19,12 +18,13 @@ import javax.swing.WindowConstants;
 import org.maox.arq.control.ControllerDesktop;
 import org.maox.arq.control.IController;
 import org.maox.arq.error.AppInfo;
-import org.maox.arq.error.Log;
 import org.maox.arq.gui.component.GUIPanel;
-import org.maox.arq.gui.component.GUIStatusBar;
+import org.maox.arq.gui.component.GUIStatusBarFlags;
 import org.maox.arq.gui.menu.GUIMenuBar;
 import org.maox.arq.gui.menu.GUIMenuItem;
-import org.maox.arq.infra.Params;
+import org.maox.arq.infra.Container;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Marco de ejecución visual de una aplicación
@@ -35,10 +35,12 @@ import org.maox.arq.infra.Params;
 @SuppressWarnings("serial")
 public class GUIDesktop extends JFrame implements ActionListener, WindowListener {
 
+	/* Log */
+	private final Logger logger = LoggerFactory.getLogger(GUIDesktop.class);
 	/* Controlador */
 	private IController control = null;
 	/* Barra de estado */
-	private GUIStatusBar statusBar = null;
+	private GUIStatusBarFlags statusBar = null;
 	/* Panel contenedor */
 	private GUIPanel contentPanel = null;
 	/* Resolución de la aplicación */
@@ -83,10 +85,10 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 		if (e.getSource() instanceof GUIMenuItem) {
 			GUIMenuItem eventM = (GUIMenuItem) (e.getSource());
 
-			Params pMenu = new Params();
-			pMenu.putParam(GUIMenuItem.NAME, eventM.getName());
-			pMenu.putParam(GUIMenuItem.CODIGO, eventM.getCode());
-			pMenu.putParam(GUIMenuItem.CONTROL, eventM.getControllerName());
+			Container pMenu = new Container();
+			pMenu.put(GUIMenuItem.NAME, eventM.getName());
+			pMenu.put(GUIMenuItem.CODIGO, eventM.getCode());
+			pMenu.put(GUIMenuItem.CONTROL, eventM.getControllerName());
 
 			control.execute(IController.MENU_ACTION, pMenu);
 		} // Menus
@@ -117,7 +119,7 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 	 * 
 	 * @return Barra de estado
 	 */
-	public GUIStatusBar getStatusBar() {
+	public GUIStatusBarFlags getStatusBar() {
 		return statusBar;
 	}
 
@@ -129,7 +131,7 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 		getContentPane().setLayout(new BorderLayout());
 
 		// Se añade la barra de estatus en la parte de abajo
-		statusBar = new GUIStatusBar();
+		statusBar = new GUIStatusBarFlags();
 		getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 		// Se crea el panel donde se añadirán las pantallas
@@ -153,12 +155,12 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if (strLookAndFeel.equals(info.getName())) {
 					UIManager.setLookAndFeel(info.getClassName());
-					Log.info(this.getClass(), "Setting Look & Feel: " + strLookAndFeel + ".");
+					logger.info("Setting Look & Feel: {}", strLookAndFeel);
 					break;
 				}
 			}
 		} catch (Exception e) {
-			Log.warning(this.getClass(), new AppInfo(EX_LOOK_AND_FEEL_NOT_FOUND, e));
+			logger.warn((new AppInfo(EX_LOOK_AND_FEEL_NOT_FOUND, e)).toString());
 			// UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 		}
 	}
@@ -180,7 +182,7 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 	 */
 	public void initResolution(String strResolution) {
 		if (strResolution == null) {
-			Log.warning(this.getClass(), "Not found a Valid Resolution, XGA will be used.");
+			logger.warn("Not found a Valid Resolution, XGA will be used.");
 			strResolution = "XGA";
 		}
 
@@ -195,12 +197,12 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 			iHeigthDesktop = 960;
 		} else // Resolución no soportada
 		{
-			Log.warning(this.getClass(), strResolution + "isn't a Valid Resolution, XGA will be used.");
+			logger.warn("{} isn't a Valid Resolution, XGA will be used.", strResolution);
 			iWidthDesktop = 1024;
 			iHeigthDesktop = 768;
 		}
 
-		Log.info(this.getClass(), "Resolution has been set to " + strResolution + ".");
+		logger.info("Resolution has been set to {}", strResolution);
 
 		super.setSize(iWidthDesktop, iHeigthDesktop);
 		refresh();
@@ -209,7 +211,7 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 		iWidthDesktop = contentPanel.getWidth();
 		iHeigthDesktop = contentPanel.getHeight();
 
-		Log.info(this.getClass(), "Printed area is " + iWidthDesktop + "x" + iHeigthDesktop + ".");
+		logger.info("Printed area is {}x{}", iWidthDesktop, iHeigthDesktop);
 	}
 
 	/**
@@ -252,10 +254,7 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 		// Se han de recorrer todas las entradas de menu y asignarles como controlador
 		// de enventos el escritorio para que se procesen desde aquí las opciones
 		// de menu
-		Enumeration<GUIMenuItem> eMenuItems = menu.getMenuItems();
-
-		while (eMenuItems.hasMoreElements()) {
-			GUIMenuItem eMenu = eMenuItems.nextElement();
+		for (GUIMenuItem eMenu : menu.getMenuItems()) {
 			eMenu.addActionListener(this);
 		}
 
@@ -265,7 +264,7 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 
 	@Override
 	public void setSize(int xResolution, int yResolution) {
-		Log.info(this.getClass(), "Resolution has been set to " + xResolution + " x " + yResolution + ".");
+		logger.info("Resolution has been set to {}x{} ", xResolution, yResolution);
 		super.setSize(xResolution, yResolution);
 
 		refresh();
@@ -274,7 +273,7 @@ public class GUIDesktop extends JFrame implements ActionListener, WindowListener
 		iWidthDesktop = contentPanel.getWidth();
 		iHeigthDesktop = contentPanel.getHeight();
 
-		Log.info(this.getClass(), "Printed area is " + iWidthDesktop + "x" + iHeigthDesktop + ".");
+		logger.info("Printed area is {}x{}", iWidthDesktop, iHeigthDesktop);
 	}
 
 	/**

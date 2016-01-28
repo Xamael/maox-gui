@@ -2,7 +2,7 @@ package org.maox.arq.gui.view;
 
 import org.maox.arq.control.Controller;
 import org.maox.arq.gui.component.GUIPanel;
-import org.maox.arq.infra.Params;
+import org.maox.arq.infra.Container;
 
 /**
  * Componente visual que representa a una vista y encapsula la comunicación con el controlador
@@ -81,7 +81,7 @@ public abstract class GUIView extends GUIPanel {
 	 * @param iAction Codigo de acción
 	 * @param params Contenedor de Paramtros
 	 */
-	protected void execute(int iAction, Params params) {
+	protected void execute(int iAction, Container params) {
 		controller.execute(iAction, params);
 	}
 
@@ -166,7 +166,7 @@ public abstract class GUIView extends GUIPanel {
 	 * @param iAction Acción de refresco
 	 * @param pResult Datos de refresco
 	 */
-	public abstract void refresh(int iAction, Params pResult);
+	public abstract void refresh(int iAction, Container pResult);
 
 	/**
 	 * Establece el modo de acceso de la vista (Sólo lectura o modificación)

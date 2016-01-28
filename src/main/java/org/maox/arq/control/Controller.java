@@ -7,11 +7,12 @@ import static org.maox.arq.error.IAppExceptionMessages.SYS_ERROR;
 import java.sql.SQLException;
 
 import org.maox.arq.error.AppException;
-import org.maox.arq.error.Log;
 import org.maox.arq.gui.view.GUIOptionPane;
 import org.maox.arq.gui.view.GUIView;
-import org.maox.arq.infra.Params;
+import org.maox.arq.infra.Container;
 import org.maox.arq.language.Language;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Clase abstracta que define un controlador estandard.
@@ -21,12 +22,13 @@ import org.maox.arq.language.Language;
  */
 public abstract class Controller implements IController {
 
+	/* Log */
+	private final Logger logger = LoggerFactory.getLogger(Controller.class);
 	/* Control padre del escritorio */
-	private ControllerDesktop	controlDesk	= null;
-
+	private ControllerDesktop controlDesk = null;
 	/* Vista asociada */
-	protected String			viewName	= null;
-	protected GUIView			view		= null;
+	protected String viewName = null;
+	protected GUIView view = null;
 
 	/**
 	 * Cierre de las posibles conexiones a DB
@@ -40,15 +42,14 @@ public abstract class Controller implements IController {
 		// Comprobar si hay transacciones pendientes
 		if (isWaitingForCommit()) {
 			Object[] options = { Language.getString("ARQ_YES"), Language.getString("ARQ_NOT") };
-			int iOption = GUIOptionPane.showOptionDialog(controlDesk.getDesktop(), Language.getString("DB_TRANSAC"), Language.getString("ARQ_WARNING"),
-					GUIOptionPane.YES_NO_OPTION, GUIOptionPane.WARNING_MESSAGE, null, options, options[1]);
+			int iOption = GUIOptionPane.showOptionDialog(controlDesk.getDesktop(), Language.getString("DB_TRANSAC"),
+					Language.getString("ARQ_WARNING"), GUIOptionPane.YES_NO_OPTION, GUIOptionPane.WARNING_MESSAGE,
+					null, options, options[1]);
 
 			if (iOption == GUIOptionPane.YES_OPTION) {
 				rollback();
-			}
-			else {
+			} else
 				return;
-			}
 		}
 
 		// Se solicita el cerrado del panel
@@ -61,8 +62,8 @@ public abstract class Controller implements IController {
 	protected abstract void commit() throws SQLException;
 
 	@Override
-	public void execute(int iAction, Params param) {
-		Log.debug(this.getClass(), "execute " + iAction);
+	public void execute(int iAction, Container param) {
+		logger.debug("execute {}", iAction);
 
 		// Antes de la acción hay que borrar el area de mensajes de estado
 		showMessage("");
@@ -76,8 +77,7 @@ public abstract class Controller implements IController {
 				exitAndSave();
 				break;
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			handleException(ex);
 		}
 	}
@@ -99,11 +99,10 @@ public abstract class Controller implements IController {
 	protected void handleException(Exception ex) {
 		if (ex instanceof SQLException) {
 			AppException eppEx = new AppException(SYS_ERROR, EX_SQL_ERROR, ((SQLException) ex).getErrorCode(), ex, null);
-			Log.error(this.getClass(), eppEx);
+			logger.error(eppEx.toString());
 			controlDesk.showMessage(eppEx);
-		}
-		else {
-			Log.error(this.getClass(), new AppException(ex));
+		} else {
+			logger.error((new AppException(ex)).toString());
 		}
 	}
 
@@ -133,8 +132,7 @@ public abstract class Controller implements IController {
 			view = (GUIView) classPanel.newInstance();
 			controlDesk.addView(view);
 			view.setController(this);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new AppException(EX_VIEW_ERROR, e);
 		}
 	}

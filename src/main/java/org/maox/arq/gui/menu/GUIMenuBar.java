@@ -3,10 +3,9 @@ package org.maox.arq.gui.menu;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.JMenuBar;
 
@@ -26,7 +25,16 @@ import org.jdom2.input.sax.XMLReaders;
 public class GUIMenuBar extends JMenuBar {
 
 	/* Elementos de menu contenidos en la barra de menu */
-	private Vector<GUIMenuItem> vMenuItems = null;
+	private List<GUIMenuItem> vMenuItems = null;
+
+	/**
+	 * Constructor
+	 */
+	public GUIMenuBar() {
+		super();
+
+		vMenuItems = new ArrayList<GUIMenuItem>();
+	}
 
 	/**
 	 * Construye un menu a partir de un fichero XML
@@ -37,7 +45,7 @@ public class GUIMenuBar extends JMenuBar {
 	public GUIMenuBar(InputStream is) throws JDOMException, IOException {
 		super();
 
-		vMenuItems = new Vector<GUIMenuItem>();
+		vMenuItems = new ArrayList<GUIMenuItem>();
 
 		// Inicializar Parser y que no valide
 		SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
@@ -72,9 +80,13 @@ public class GUIMenuBar extends JMenuBar {
 				menuItem.setControllerName(eMenuItem.getAttributeValue("controller"));
 				// menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
 				menuOption.add(menuItem);
-				vMenuItems.add(menuItem);
+				addItem(menuItem);
 			}
 		}
+	}
+
+	public void addItem(GUIMenuItem menuItem) {
+		vMenuItems.add(menuItem);
 	}
 
 	/**
@@ -82,8 +94,8 @@ public class GUIMenuBar extends JMenuBar {
 	 * 
 	 * @return
 	 */
-	public Enumeration<GUIMenuItem> getMenuItems() {
-		return vMenuItems.elements();
+	public List<GUIMenuItem> getMenuItems() {
+		return vMenuItems;
 	}
 
 	@Override

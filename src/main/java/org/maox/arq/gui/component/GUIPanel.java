@@ -8,36 +8,36 @@ import java.util.Vector;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-import org.maox.arq.error.Log;
 import org.maox.arq.gui.IDataExchange;
 import org.maox.arq.gui.IStateExchange;
 import org.maox.arq.gui.events.DataEvent;
 import org.maox.arq.gui.events.DataListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public class GUIPanel extends JPanel implements IStateExchange, DataListener {
 
+	/* Log */
+	private final Logger logger = LoggerFactory.getLogger(GUIPanel.class);
 	/* Posibles resoluciones */
-	protected static final int			SVGA			= 1;
-	protected static final int			XGA				= 2;
-	protected static final int			SXGA			= 3;
-
+	protected static final int SVGA = 1;
+	protected static final int XGA = 2;
+	protected static final int SXGA = 3;
 	/* Constantes de tamaño, dependen de la resolución escogida */
-	protected static final int			SVGA_HEIGTH		= 523;
-	protected static final int			SVGA_WIDTH		= 794;
-	protected static final int			XGA_HEIGTH		= 691;
-	protected static final int			XGA_WIDTH		= 1018;
-	protected static final int			SXGA_HEIGTH		= 883;
-	protected static final int			SXGA_WIDTH		= 1274;
-
+	protected static final int SVGA_HEIGTH = 523;
+	protected static final int SVGA_WIDTH = 794;
+	protected static final int XGA_HEIGTH = 691;
+	protected static final int XGA_WIDTH = 1018;
+	protected static final int SXGA_HEIGTH = 883;
+	protected static final int SXGA_WIDTH = 1274;
 	/* Listas de componentes resgistrados */
-	protected Vector<Component>			vAllComponents	= new Vector<Component>();
-	protected Vector<IStateExchange>	vStateComp		= new Vector<IStateExchange>();
-	protected Vector<IDataExchange>		vDataComp		= new Vector<IDataExchange>();
-	protected Vector<GUIButton>			vButtons		= new Vector<GUIButton>();
-
+	protected Vector<Component> vAllComponents = new Vector<Component>();
+	protected Vector<IStateExchange> vStateComp = new Vector<IStateExchange>();
+	protected Vector<IDataExchange> vDataComp = new Vector<IDataExchange>();
+	protected Vector<GUIButton> vButtons = new Vector<GUIButton>();
 	/* Estados del panel */
-	private boolean						inError			= false;
+	private boolean inError = false;
 
 	/**
 	 * Constructor del panel
@@ -84,8 +84,7 @@ public class GUIPanel extends JPanel implements IStateExchange, DataListener {
 	}
 
 	/**
-	 * Valida todos los componentes si son obligatorios o/y estan en error y se
-	 * activa los botones OK en caso necesario
+	 * Valida todos los componentes si son obligatorios o/y estan en error y se activa los botones OK en caso necesario
 	 */
 	private void checkStateComponents() {
 		Iterator<IStateExchange> iComp = vStateComp.iterator();
@@ -131,8 +130,7 @@ public class GUIPanel extends JPanel implements IStateExchange, DataListener {
 		// si los componentes están en estado valido y si es así habilitar los
 		// posibles botones de tipo OK que haya.
 		checkStateComponents();
-
-		Log.debugEvent(this.getClass(), "checking status ... " + !isInError());
+		logger.debug("checking status ... {}", !isInError());
 	}
 
 	@Override
@@ -146,12 +144,13 @@ public class GUIPanel extends JPanel implements IStateExchange, DataListener {
 			IStateExchange comp = iComp.next();
 
 			// Componente optativo (con valor o sin el)
-			if (!comp.isRequired())
+			if (!comp.isRequired()) {
 				bRes = (bRes || comp.hasValue());
-			else if (comp.isRequired()) {
+			} else if (comp.isRequired()) {
 				bRes = comp.hasValue();
-				if (!bRes)
+				if (!bRes) {
 					break;
+				}
 			}
 		}
 
@@ -185,8 +184,9 @@ public class GUIPanel extends JPanel implements IStateExchange, DataListener {
 		while (iComp.hasNext() && bRes) {
 			IStateExchange comp = iComp.next();
 
-			if (!comp.isInValidState())
+			if (!comp.isInValidState()) {
 				bRes = false;
+			}
 		}
 
 		return bRes;
@@ -202,8 +202,9 @@ public class GUIPanel extends JPanel implements IStateExchange, DataListener {
 		while (iComp.hasNext() && !bRes) {
 			IStateExchange comp = iComp.next();
 
-			if (comp.isRequired())
+			if (comp.isRequired()) {
 				bRes = true;
+			}
 		}
 
 		return bRes;
@@ -230,13 +231,14 @@ public class GUIPanel extends JPanel implements IStateExchange, DataListener {
 		if (comp instanceof IDataExchange) {
 			vDataComp.add((IDataExchange) comp);
 
-			// Se registra el componente por si modifica su información que lo sepa el panel 
+			// Se registra el componente por si modifica su información que lo sepa el panel
 			((IDataExchange) comp).addDataListener(this);
 		}
 
 		// Botones
-		if (comp instanceof GUIButton)
+		if (comp instanceof GUIButton) {
 			vButtons.add((GUIButton) comp);
+		}
 
 		// Por ultimo se pasa un chequeo para activar los botones si es necesario
 		checkStateComponents();

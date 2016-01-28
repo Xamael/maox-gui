@@ -1,5 +1,7 @@
 package org.maox.arq.gui.component;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -9,12 +11,13 @@ import javax.swing.JTextField;
 import javax.swing.event.EventListenerList;
 import javax.swing.text.Document;
 
-import org.maox.arq.error.Log;
 import org.maox.arq.gui.GUISettings;
 import org.maox.arq.gui.IDataExchange;
 import org.maox.arq.gui.IStateExchange;
 import org.maox.arq.gui.events.DataEvent;
 import org.maox.arq.gui.events.DataListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Componente visual de un campo de texto
@@ -28,7 +31,20 @@ public class GUITextField extends JTextField implements IStateExchange, IDataExc
 	/**
 	 * Manejador de evento de la modificación de la información en el componente
 	 */
-	private class ChangeDocListener implements KeyListener, FocusListener {
+	private class ChangeDocListener implements KeyListener, FocusListener, KeyEventDispatcher {
+
+		@Override
+		public boolean dispatchKeyEvent(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_TAB) {
+				transferData();
+			}
+
+			// If an implementation of this method returns false, then the KeyEvent is passed to the next
+			// KeyEventDispatcher in the chain, ending with the current KeyboardFocusManager. If an implementation
+			// returns true, the KeyEvent is assumed to have been dispatched (although this need not be the case), and
+			// the current KeyboardFocusManager will take no further action with regard to the KeyEvent.
+			return false;
+		}
 
 		@Override
 		public void focusGained(FocusEvent e) {
@@ -36,15 +52,14 @@ public class GUITextField extends JTextField implements IStateExchange, IDataExc
 
 		@Override
 		public void focusLost(FocusEvent e) {
-			if (!getText().equals(data == null ? "" : data)) {
-				setData(getText());
-			}
+			transferData();
 		}
 
 		@Override
 		public void keyPressed(KeyEvent e) {
 			// Cuando se pulse ENTER, será como pulsar TAB
 			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				transferData();
 				transferFocus();
 			}
 		}
@@ -59,11 +74,14 @@ public class GUITextField extends JTextField implements IStateExchange, IDataExc
 
 	}
 
+	/* Log */
+	private final Logger logger = LoggerFactory.getLogger(GUITextField.class);
+
 	/* Indicador si el campo es obligatorio o no */
-	private boolean	bRequired	= false;
+	private boolean bRequired = false;
 
 	/* Información actual del contenedor */
-	private Object	data		= null;
+	private Object data = null;
 
 	/**
 	 * Constructor básico
@@ -122,16 +140,14 @@ public class GUITextField extends JTextField implements IStateExchange, IDataExc
 	}
 
 	/**
-	 * Notifies all listeners that have registered interest for
-	 * notification on this event type. The event instance
-	 * is lazily created using the parameters passed into
-	 * the fire method. The listener list is processed in last to
-	 * first order.
+	 * Notifies all listeners that have registered interest for notification on this event type. The event instance is
+	 * lazily created using the parameters passed into the fire method. The listener list is processed in last to first
+	 * order.
 	 * 
 	 * @see EventListenerList
 	 */
 	protected void fireDataChanged() {
-		Log.debugEvent(this.getClass(), getName() + " firing dataChanged: " + data);
+		logger.debug("firing dataChanged: {}", data);
 
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerList.getListenerList();
@@ -171,12 +187,16 @@ public class GUITextField extends JTextField implements IStateExchange, IDataExc
 		this.data = data;
 
 		// Se registra el documento en un el capturador de eventos
-		addKeyListener(new ChangeDocListener());
-		addFocusListener(new ChangeDocListener());
+		ChangeDocListener listener = new ChangeDocListener();
+		addKeyListener(listener);
+		addFocusListener(listener);
 
 		// Se determina el color del componente
 		setBackground(GUISettings.BACKGROUND_COLOR);
 		setForeground(GUISettings.FOREGROUND_COLOR);
+
+		// Se capturaran las pulsaciones de eventos antes de transferir el foco
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(listener);
 	}
 
 	@Override
@@ -203,10 +223,11 @@ public class GUITextField extends JTextField implements IStateExchange, IDataExc
 
 	@Override
 	public void setData(Object oData) {
-		if (oData != null && oData.toString().equals(""))
+		if (oData != null && oData.toString().equals("")) {
 			data = null;
-		else
+		} else {
 			data = oData;
+		}
 
 		// TODO Dependiendo del formateador asociado se podría hacer el toString
 		setText(data == null ? "" : data.toString());
@@ -223,9 +244,19 @@ public class GUITextField extends JTextField implements IStateExchange, IDataExc
 	public void setRequired(boolean bReq) {
 		bRequired = bReq;
 
-		if (bRequired)
+		if (bRequired) {
 			setBackground(GUISettings.REQUIRED_BACKGROUND_COLOR);
-		else
+		} else {
 			setBackground(GUISettings.BACKGROUND_COLOR);
+		}
+	}
+
+	/**
+	 * Transfiere el contenido del campo al contendor interno del dato
+	 */
+	private void transferData() {
+		if (!getText().equals(data == null ? "" : data)) {
+			setData(getText());
+		}
 	}
 }

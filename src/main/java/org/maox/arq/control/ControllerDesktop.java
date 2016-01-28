@@ -15,13 +15,12 @@ import java.util.Properties;
 import org.jdom2.JDOMException;
 import org.maox.arq.error.AppException;
 import org.maox.arq.error.AppInfo;
-import org.maox.arq.error.Log;
-import org.maox.arq.gui.component.GUIStatusBar;
+import org.maox.arq.gui.component.GUIStatusBarFlags;
 import org.maox.arq.gui.menu.GUIMenuBar;
 import org.maox.arq.gui.menu.GUIMenuItem;
 import org.maox.arq.gui.view.GUIDesktop;
 import org.maox.arq.gui.view.GUIView;
-import org.maox.arq.infra.Params;
+import org.maox.arq.infra.Container;
 import org.maox.arq.language.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,20 +33,18 @@ import org.slf4j.LoggerFactory;
  */
 public class ControllerDesktop implements IController {
 
-	// Log
-	Logger logger = LoggerFactory.getLogger(ControllerDesktop.class);
-
-	// Fichero de configuración de arquitectura
-	private static final String PROP_ARQ = "/org/maox/arq/config/arq.properties";
-
-	// Fichero de Configuración
+	/* Log */
+	private final Logger logger = LoggerFactory.getLogger(ControllerDesktop.class);
+	/* Fichero de configuración de arquitectura */
+	private static final String PROP_ARQ = "/config/arq.properties";
+	/* Fichero de Configuración */
 	private Properties configArq = null;
 	private Properties configApp = null;
-	// Marco Visual de Ejecución
+	/* Marco Visual de Ejecución */
 	private GUIDesktop frmApp = null;
-	// Barra de estado
-	private GUIStatusBar status = null;
-	// Nombre de la aplicación
+	/* Barra de estado */
+	private GUIStatusBarFlags status = null;
+	/* Nombre de la aplicación */
 	private String strTitleApp = null;
 
 	/**
@@ -80,7 +77,7 @@ public class ControllerDesktop implements IController {
 	}
 
 	@Override
-	public void execute(int iAccion, Params param) {
+	public void execute(int iAccion, Container param) {
 		// Se borrara cualquier texto de la barra de estado antes de ejecutar
 		// la acción
 		status.setMessage("");
@@ -108,7 +105,7 @@ public class ControllerDesktop implements IController {
 	protected void exit(AppException ex) {
 
 		if (!(ex instanceof AppInfo)) {
-			Log.error(this.getClass(), ex);
+			logger.error(ex.toString());
 		}
 
 		// Grabar posibles variables de configuracion
@@ -119,7 +116,7 @@ public class ControllerDesktop implements IController {
 			frmApp.dispose();
 		}
 
-		Log.info(this.getClass(), new AppInfo(EX_END_APP));
+		logger.info((new AppInfo(EX_END_APP)).toString());
 		Runtime.getRuntime().exit(ex.getAppCode());
 	}
 
@@ -219,11 +216,11 @@ public class ControllerDesktop implements IController {
 	 * 
 	 * @param param Contendrá los parametros de menu (Controlador a ejecutar)
 	 */
-	private void openMenu(Params param) {
+	private void openMenu(Container param) {
 
 		// A partir del nombre del controlador pasado como parámetro se ha de
 		// instanciar y ejecutar su comando de incio
-		String strControlador = (String) param.getParam(GUIMenuItem.CONTROL);
+		String strControlador = (String) param.get(GUIMenuItem.CONTROL);
 
 		try {
 			@SuppressWarnings("rawtypes")
@@ -241,7 +238,7 @@ public class ControllerDesktop implements IController {
 				ex = new AppException(EX_MENU_ERROR, e);
 			}
 
-			Log.error(this.getClass(), ex);
+			logger.error(ex.toString());
 			showMessage(ex);
 		}
 	}
@@ -271,7 +268,7 @@ public class ControllerDesktop implements IController {
 			try {
 				initProp.store(new FileWriter("init.properties"), "App Init");
 			} catch (IOException e) {
-				Log.error(this.getClass(), new AppException(EX_FILE_WRITE_ERROR, e));
+				logger.error((new AppException(EX_FILE_WRITE_ERROR, e)).toString());
 			}
 		}
 	}

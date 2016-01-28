@@ -18,8 +18,7 @@ import javax.swing.border.SoftBevelBorder;
  */
 @SuppressWarnings("serial")
 public class GUIStatusBar extends GUIPanel {
-	GUILabel	lblEstado	= null;
-	GUILabel	lblNumreg	= null;
+	GUILabel lblEstado = null;
 
 	/**
 	 * Constructor
@@ -64,29 +63,6 @@ public class GUIStatusBar extends GUIPanel {
 		gbc_separator1.gridx = 2;
 		gbc_separator1.gridy = 0;
 		add(separator1, gbc_separator1);
-
-		lblNumreg = new GUILabel("Num Reg");
-		GridBagConstraints gbc_lblNumreg = new GridBagConstraints();
-		gbc_lblNumreg.insets = new Insets(0, 0, 0, 5);
-		gbc_lblNumreg.anchor = GridBagConstraints.EAST;
-		gbc_lblNumreg.gridx = 3;
-		gbc_lblNumreg.gridy = 0;
-		add(lblNumreg, gbc_lblNumreg);
-
-		JSeparator separator2 = new JSeparator(SwingConstants.VERTICAL);
-		GridBagConstraints gbc_separator2 = new GridBagConstraints();
-		gbc_separator2.fill = GridBagConstraints.VERTICAL;
-		gbc_separator2.insets = new Insets(0, 0, 0, 5);
-		gbc_separator2.gridx = 4;
-		gbc_separator2.gridy = 0;
-		add(separator2, gbc_separator2);
-
-		GUILabel lblFlags = new GUILabel("Flags");
-		GridBagConstraints gbc_lblFlags = new GridBagConstraints();
-		gbc_lblFlags.insets = new Insets(0, 0, 0, 5);
-		gbc_lblFlags.gridx = 5;
-		gbc_lblFlags.gridy = 0;
-		add(lblFlags, gbc_lblFlags);
 
 		JSeparator separatorFinal = new JSeparator();
 		GridBagConstraints gbc_separatorFinal = new GridBagConstraints();

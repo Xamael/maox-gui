@@ -5,7 +5,7 @@ import javax.swing.JMenu;
 /**
  * Componente gráfico de la entrada de menú
  * 
- * @author Alaz Orgaz
+ * @author Alex Orgaz
  * @version 00.01
  */
 @SuppressWarnings("serial")

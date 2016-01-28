@@ -1,6 +1,6 @@
 package org.maox.arq.control;
 
-import org.maox.arq.infra.Params;
+import org.maox.arq.infra.Container;
 
 /**
  * Interfaz de los Controladores
@@ -11,32 +11,33 @@ import org.maox.arq.infra.Params;
 public interface IController {
 
 	/* Parametros */
-	final public static String	SUPER_CONTROL	= "SUPER_CONTROL";
+	final public static String SUPER_CONTROL = "SUPER_CONTROL";
 
 	/* Acciones */
-	/* Iniciar un Controlador */
-	final public static int		INIT			= 1;
+	final public static int BASE = 9000;
 	/* Salir sin guardar cambios */
-	final public static int		EXIT			= 0;
+	final public static int EXIT = BASE + 0;
+	/* Iniciar un Controlador */
+	final public static int INIT = BASE + 1;
 	/* Acción de menú */
-	final public static int		MENU_ACTION		= 2;
+	final public static int MENU_ACTION = BASE + 2;
 	/* Abrir una ventana */
-	final public static int		OPEN_WINDOW		= 3;
+	final public static int OPEN_WINDOW = BASE + 3;
 	/* Salir guardando cambios */
-	final public static int		EXIT_AND_SAVE	= 4;
+	final public static int EXIT_AND_SAVE = BASE + 4;
 	/* Buscar */
-	final public static int		SEARCH			= 5;
+	final public static int SEARCH = BASE + 5;
 	/* Insertar */
-	final public static int		INSERT			= 6;
+	final public static int INSERT = BASE + 6;
 	/* Actualizar */
-	final public static int		UPDATE			= 7;
+	final public static int UPDATE = BASE + 7;
 	/* Eliminar */
-	final public static int		DELETE			= 8;
+	final public static int DELETE = BASE + 8;
 
 	/**
 	 * Ejecución de una acción lanzado desde la vista
 	 * 
 	 * @param iAccion Código de Acción
 	 */
-	public void execute(int iAction, Params param);
+	public void execute(int iAction, Container param);
 }

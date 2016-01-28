@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<Desktop title="Test GUI" high="600" widht="800">
-	<MenuBar>
-		<MenuOption name="Componentes" mnemonic="C">
-			<MenuItem code="TST001" name="Básicos" accelerator="B" modaccelerator="ctrl" controller="org.maox.arq.test.controller.TestController"/>
-		</MenuOption>
-	</MenuBar>
-</Desktop>

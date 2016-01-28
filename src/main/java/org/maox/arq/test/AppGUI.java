@@ -17,10 +17,7 @@ public class AppGUI extends Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		AppGUI app = new AppGUI();
-		// Se carga el fichero de configuración de la aplicación
-		app.setConfigFile("/org/maox/arq/test/config/application.properties");
-		app.start();
+		new AppGUI();
 	}
 
 	/**
@@ -29,5 +26,8 @@ public class AppGUI extends Application {
 	public AppGUI() {
 		super();
 		setTitle("Test GUI");
+		// Se carga el fichero de configuración de la aplicación
+		setConfigFile("/config/test/application.properties");
+		start();
 	}
 }

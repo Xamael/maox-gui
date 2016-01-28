@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Desktop title="Test GUI" high="600" widht="800">
+	<MenuBar>
+		<MenuOption name="Componentes" mnemonic="C">
+			<MenuItem code="TST001" name="Básicos" accelerator="B" modaccelerator="ctrl" controller="org.maox.arq.test.controller.TestComponentsController"/>
+		</MenuOption>
+		<MenuOption name="Plantillas" mnemonic="P">
+			<MenuItem code="TST002" name="3 Bloq" accelerator="3" modaccelerator="ctrl" controller="org.maox.arq.test.controller.Test3BloqController"/>
+		</MenuOption>		
+	</MenuBar>
+</Desktop>
