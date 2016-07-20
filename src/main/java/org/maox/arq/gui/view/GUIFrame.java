@@ -6,6 +6,7 @@ import java.awt.event.WindowListener;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -19,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Marco de ejecución visual simple de aplicación
- * 
+ *
  * @author Alex Orgaz
  */
 @SuppressWarnings("serial")
@@ -51,10 +52,14 @@ public abstract class GUIFrame extends JFrame implements ActionListener, WindowL
 		initComponents();
 
 		// Captura de los eventos de menu
-		List<GUIMenuItem> list = menu.getMenuItems();
-		if (list != null) {
-			for (GUIMenuItem eMenu : list) {
-				eMenu.addActionListener(this);
+		// Para evitar problemas con el Windows Builder de Eclipse sólo lo se
+		// inicializará si es distinto a null
+		if (menu != null) {
+			List<GUIMenuItem> list = menu.getMenuItems();
+			if (list != null) {
+				for (GUIMenuItem eMenu : list) {
+					eMenu.addActionListener(this);
+				}
 			}
 		}
 
@@ -76,8 +81,9 @@ public abstract class GUIFrame extends JFrame implements ActionListener, WindowL
 
 	/**
 	 * Se establece el Look and Feel del escritorio
-	 * 
-	 * @param strLookAndFeel Clase de Look and Feel
+	 *
+	 * @param strLookAndFeel
+	 *            Clase de Look and Feel
 	 * @throws UnsupportedLookAndFeelException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
@@ -99,6 +105,9 @@ public abstract class GUIFrame extends JFrame implements ActionListener, WindowL
 			logger.warn(e.toString());
 			// UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 		}
+
+		// Se actualiza el look and feel con la opción selecionada
+		SwingUtilities.updateComponentTreeUI(this);
 	}
 
 	/**
@@ -108,9 +117,11 @@ public abstract class GUIFrame extends JFrame implements ActionListener, WindowL
 
 	/**
 	 * Mueve el Marco a una posición determinada
-	 * 
-	 * @param xPos Posición Horizaontal
-	 * @param yPos Posición Vertical
+	 *
+	 * @param xPos
+	 *            Posición Horizaontal
+	 * @param yPos
+	 *            Posición Vertical
 	 */
 	public void initPosition(int xPos, int yPos) {
 		setBounds(xPos, yPos, getWidth(), getHeight());
